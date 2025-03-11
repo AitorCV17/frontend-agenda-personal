@@ -1,25 +1,31 @@
+// pages/index.tsx
 import { NextPage } from "next";
-import PrivateRoute from "../components/common/PrivateRoute";
-import Header from "../components/common/Header";
-import { useAuth } from "../hooks/useAuth";
+import Header from "components/common/Header";
+import Footer from "components/common/Footer";
+import { motion } from "framer-motion";
 
-const Dashboard: NextPage = () => {
-  const { user } = useAuth();
-
+const Home: NextPage = () => {
   return (
-    <PrivateRoute>
+    <>
       <Header />
       <main className="container mx-auto p-4">
-        <h2 className="text-2xl font-bold">Dashboard de Usuario</h2>
-
-        {user && (
-          <p className="mt-4">
-            ¡Bienvenido, <strong>{user.nombre || user.email}</strong>!
-          </p>
-        )}
+        <motion.section
+          className="text-center py-20"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          data-aos="fade-up"
+        >
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">Bienvenido a Agenda Personal</h1>
+          <p className="text-lg md:text-2xl mb-8">Organiza tu vida de manera profesional y creativa</p>
+          <a href="/auth/register" className="px-6 py-3 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition-colors">
+            Comienza Ahora
+          </a>
+        </motion.section>
       </main>
-    </PrivateRoute>
+      <Footer />
+    </>
   );
 };
 
-export default Dashboard;
+export default Home;

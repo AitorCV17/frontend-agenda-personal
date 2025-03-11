@@ -1,15 +1,23 @@
+// pages/auth/login.tsx
 import { NextPage } from "next";
-import LoginForm from "../../components/forms/LoginForm";
-import Header from "../../components/common/Header";
+import Header from "components/common/Header";
+import Footer from "components/common/Footer";
+import LoginForm from "components/forms/LoginForm";
+import { motion } from "framer-motion";
 
 const LoginPage: NextPage = () => {
   return (
     <>
       <Header />
-      <main className="container mx-auto p-4">
-        <h2 className="text-2xl font-bold mb-4">Iniciar Sesión</h2>
+      <motion.main
+        className="container mx-auto p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
         <LoginForm />
-      </main>
+      </motion.main>
+      <Footer />
     </>
   );
 };

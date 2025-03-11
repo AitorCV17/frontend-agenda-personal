@@ -1,5 +1,5 @@
 // Funciones auxiliares para manejo de JWT y almacenamiento
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export const getTokenPayload = (token: string) => {
   try {
