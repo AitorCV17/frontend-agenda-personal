@@ -1,33 +1,25 @@
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { NextPage } from "next";
+import PrivateRoute from "../components/common/PrivateRoute";
 import Header from "../components/common/Header";
+import { useAuth } from "../hooks/useAuth";
 
-export default function Home() {
-  const router = useRouter();
-  const { refreshUser } = useAuth();
-
-  useEffect(() => {
-    if (router.query.accessToken && router.query.refreshToken) {
-      const { accessToken, refreshToken } = router.query;
-      // Guardar en localStorage
-      localStorage.setItem("accessToken", String(accessToken));
-      localStorage.setItem("refreshToken", String(refreshToken));
-
-      // Si quieres decodificar y setear el user:
-      // (Podrías hacerlo en tu AuthProvider, para simplificar)
-      // O forzar un reload:
-      window.location.href = "/dashboard"; // o la ruta que quieras
-    }
-  }, [router.query, refreshUser]);
+const Dashboard: NextPage = () => {
+  const { user } = useAuth();
 
   return (
-    <>
+    <PrivateRoute>
       <Header />
       <main className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold">Bienvenido a Agenda Personal</h1>
-        <p className="mt-4">Organiza tus eventos, administra recordatorios y más.</p>
+        <h2 className="text-2xl font-bold">Dashboard de Usuario</h2>
+
+        {user && (
+          <p className="mt-4">
+            ¡Bienvenido, <strong>{user.nombre || user.email}</strong>!
+          </p>
+        )}
       </main>
-    </>
+    </PrivateRoute>
   );
-}
+};
+
+export default Dashboard;

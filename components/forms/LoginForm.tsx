@@ -15,21 +15,21 @@ const LoginForm = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormInputs>();
+
   const [errorMessage, setErrorMessage] = useState("");
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
       await login(data.email, data.password);
-      // Por ejemplo, podrías redirigir al dashboard:
-      // router.push("/dashboard");
+      window.location.href = "/dashboard"; // Redirige al dashboard después del login clásico
     } catch (error: any) {
       setErrorMessage(error.message || "Error al iniciar sesión");
     }
   };
 
   const handleGoogleLogin = () => {
-    // Tu backend expone /api/auth/google para iniciar el flujo OAuth.
-    window.location.href = "http://localhost:3020/api/auth/google";
+    console.log('[LoginForm] Redirigiendo al backend de Google...');
+    window.location.href = "http://localhost:3020/api/auth/google"; // Backend que inicia OAuth
   };
 
   return (
@@ -56,6 +56,7 @@ const LoginForm = () => {
         error={!!errors.password}
         helperText={errors.password?.message}
       />
+
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
 
       <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
