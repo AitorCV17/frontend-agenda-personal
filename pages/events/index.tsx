@@ -2,7 +2,8 @@
 import { NextPage } from "next";
 import PrivateRoute from "components/common/PrivateRoute";
 import Header from "components/common/Header";
-import Footer from "components/common/Footer";
+// Eliminamos la importación del Footer
+// import Footer from "components/common/Footer";
 import { useEvents } from "hooks/useEvents";
 import { motion } from "framer-motion";
 
@@ -41,7 +42,7 @@ const EventsPage: NextPage = () => {
           </ul>
         )}
       </main>
-      <Footer />
+      {/* Footer eliminado */}
     </PrivateRoute>
   );
 };

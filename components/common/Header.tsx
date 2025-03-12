@@ -1,3 +1,4 @@
+// components/common/Header.tsx
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "hooks/useAuth";
@@ -24,18 +25,31 @@ const Header = () => {
           Agenda Personal
         </Link>
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          <Link href="/dashboard" className="hover:underline">
-            Dashboard
-          </Link>
-          <Link href="/events" className="hover:underline">
-            Eventos
-          </Link>
-          <Link href="/profile" className="hover:underline">
-            Perfil
-          </Link>
-          <button onClick={logout} className="hover:underline">
-            Cerrar Sesión
-          </button>
+          {user ? (
+            <>
+              <Link href="/dashboard" className="hover:underline">
+                Dashboard
+              </Link>
+              <Link href="/events" className="hover:underline">
+                Eventos
+              </Link>
+              <Link href="/profile" className="hover:underline">
+                Perfil
+              </Link>
+              <button onClick={logout} className="hover:underline">
+                Cerrar Sesión
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/auth/login" className="hover:underline">
+                Iniciar Sesión
+              </Link>
+              <Link href="/auth/register" className="hover:underline">
+                Registrarse
+              </Link>
+            </>
+          )}
           <button
             onClick={() => setDarkMode(!darkMode)}
             aria-label="Modo oscuro/claro"
@@ -60,18 +74,31 @@ const Header = () => {
           className="md:hidden bg-emerald-600/90 dark:bg-emerald-700/90 rounded-b-lg p-4"
         >
           <ul className="flex flex-col space-y-3">
-            <li>
-              <Link href="/dashboard">Dashboard</Link>
-            </li>
-            <li>
-              <Link href="/events">Eventos</Link>
-            </li>
-            <li>
-              <Link href="/profile">Perfil</Link>
-            </li>
-            <li>
-              <button onClick={logout}>Cerrar Sesión</button>
-            </li>
+            {user ? (
+              <>
+                <li>
+                  <Link href="/dashboard">Dashboard</Link>
+                </li>
+                <li>
+                  <Link href="/events">Eventos</Link>
+                </li>
+                <li>
+                  <Link href="/profile">Perfil</Link>
+                </li>
+                <li>
+                  <button onClick={logout}>Cerrar Sesión</button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link href="/auth/login">Iniciar Sesión</Link>
+                </li>
+                <li>
+                  <Link href="/auth/register">Registrarse</Link>
+                </li>
+              </>
+            )}
             <li>
               <button onClick={() => setDarkMode(!darkMode)}>
                 {darkMode ? "Modo Claro" : "Modo Oscuro"}

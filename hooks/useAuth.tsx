@@ -36,7 +36,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = localStorage.getItem("accessToken");
     if (token) {
       try {
-        const decoded: any = jwtDecode(token);
+        const tokenValue = token.trim();
+        // Verifica que el token tenga el formato JWT (3 partes separadas por ".")
+        if (tokenValue.split('.').length !== 3) {
+          console.error('[AuthProvider] Token con formato inválido');
+          setUser(null);
+          return;
+        }
+        const decoded: any = jwtDecode(tokenValue);
         const loadedUser: User = {
           id: decoded.id,
           email: decoded.email,
