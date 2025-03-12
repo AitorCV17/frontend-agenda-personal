@@ -1,5 +1,3 @@
-// pages/events/new.tsx
-
 import { NextPage } from "next";
 import PrivateRoute from "components/common/PrivateRoute";
 import Header from "components/common/Header";
@@ -15,7 +13,6 @@ const NewEventPage: NextPage = () => {
           className="text-2xl font-bold mb-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
         >
           Crear Evento
         </motion.h2>

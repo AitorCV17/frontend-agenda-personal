@@ -1,4 +1,3 @@
-// hooks/useAuth.tsx
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { jwtDecode } from "jwt-decode";
 import axiosInstance from "utils/axiosInstance";
@@ -16,7 +15,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (nombre: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  refreshUser: (user: User) => void;
+  refreshUser: (updatedUser: Partial<User>) => void; // ✅ Cambiado a Partial para que id sea opcional
   loadUserFromToken: () => void;
 }
 
@@ -29,30 +28,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     loadUserFromToken();
     setIsLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadUserFromToken = () => {
     const token = localStorage.getItem("accessToken");
     if (token) {
       try {
-        const tokenValue = token.trim();
-        // Verifica que el token tenga el formato JWT (3 partes separadas por ".")
-        if (tokenValue.split('.').length !== 3) {
-          console.error('[AuthProvider] Token con formato inválido');
-          setUser(null);
-          return;
-        }
-        const decoded: any = jwtDecode(tokenValue);
+        const decoded: any = jwtDecode(token);
         const loadedUser: User = {
           id: decoded.id,
           email: decoded.email,
           rol: decoded.rol,
-          nombre: decoded.nombre || "",
+          nombre: decoded.nombre,
         };
         setUser(loadedUser);
       } catch (error) {
-        console.error('[AuthProvider] Error decodificando token:', error);
+        console.error("Error decoding token:", error);
         setUser(null);
       }
     } else {
@@ -64,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const res = await axiosInstance.post("/auth/login", { email, password });
     const { accessToken } = res.data;
     localStorage.setItem("accessToken", accessToken);
-    loadUserFromToken(); // Se reutiliza la función para cargar el usuario
+    loadUserFromToken();
   };
 
   const register = async (nombre: string, email: string, password: string) => {
@@ -77,8 +68,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  const refreshUser = (updatedUser: User) => {
-    setUser(updatedUser);
+  const refreshUser = (updatedUser: Partial<User>) => {
+    setUser((prev) => ({ ...prev, ...updatedUser } as User));
   };
 
   return (
@@ -90,8 +81,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth debe usarse dentro de AuthProvider");
-  }
+  if (!context) throw new Error("useAuth debe usarse dentro de AuthProvider");
   return context;
 };

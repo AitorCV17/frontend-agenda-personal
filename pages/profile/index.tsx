@@ -1,78 +1,127 @@
-// pages/profile/index.tsx
-import { NextPage } from "next";
-import PrivateRoute from "components/common/PrivateRoute";
-import Header from "components/common/Header";
-// Eliminamos la importación del Footer
-// import Footer from "components/common/Footer";
-import { useAuth } from "hooks/useAuth";
-import { useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
-import { motion } from "framer-motion";
+import PrivateRoute from "components/common/PrivateRoute";
+import Loader from "components/common/Loader";
+import Header from "components/common/Header"; // ✅ IMPORTADO BIEN
+import { useProfile, useUpdateProfile, useDeleteProfile } from "hooks/useProfile";
+import { useAuth } from "hooks/useAuth";
+import { useRouter } from "next/router";
+import Head from "next/head";
 
 interface ProfileFormInputs {
   nombre: string;
   email: string;
 }
 
-const ProfilePage: NextPage = () => {
-  const { user, refreshUser } = useAuth();
-  const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormInputs>({
-    defaultValues: { nombre: user?.nombre, email: user?.email }
-  });
-  const [message, setMessage] = useState("");
+const ProfilePage = () => {
+  const router = useRouter();
+  const { data: profile, isLoading, isError } = useProfile();
+  const updateProfileMutation = useUpdateProfile();
+  const deleteProfileMutation = useDeleteProfile();
+  const { refreshUser, logout } = useAuth();
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormInputs>();
+
+  useEffect(() => {
+    if (profile) {
+      reset({
+        nombre: profile.nombre,
+        email: profile.email,
+      });
+    }
+  }, [profile, reset]);
 
   const onSubmit = async (data: ProfileFormInputs) => {
     try {
-      const res = await axios.put("/api/users/me", data);
-      refreshUser(res.data);
-      setMessage("Perfil actualizado correctamente.");
+      const res = await updateProfileMutation.mutateAsync(data);
+      refreshUser({
+        nombre: res.data.nombre,
+        email: res.data.email,
+      });
+      alert("Perfil actualizado correctamente");
     } catch (error) {
-      setMessage("Error actualizando el perfil.");
+      console.error("Error al actualizar perfil", error);
+      alert("Error al actualizar perfil");
+    }
+  };
+
+  const onDelete = async () => {
+    if (!confirm("¿Estás seguro de eliminar tu cuenta? Esta acción es irreversible.")) return;
+    try {
+      await deleteProfileMutation.mutateAsync();
+      logout();
+      router.push("/auth/login");
+    } catch (error) {
+      console.error("Error al eliminar cuenta", error);
+      alert("Error al eliminar la cuenta");
     }
   };
 
   return (
-    <PrivateRoute>
+    <>
+      <Head>
+        <title>Mi Perfil - Agenda Personal</title>
+      </Head>
+
+      {/* ✅ Header debe ir fuera de PrivateRoute para que cargue siempre */}
       <Header />
-      <main className="container mx-auto p-4">
-        <motion.h2
-          className="text-2xl font-bold mb-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-        >
-          Mi Perfil
-        </motion.h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="max-w-md mx-auto p-6 glass shadow-lg rounded-lg">
-          <div className="mb-4">
-            <label className="block mb-1 font-bold" htmlFor="nombre">Nombre</label>
-            <input
-              id="nombre"
-              type="text"
-              {...register("nombre", { required: true, minLength: 3, maxLength: 50 })}
-              className="w-full border p-2 rounded focus:ring-emerald-500"
-            />
-            {errors.nombre && <span className="text-red-500">Nombre inválido</span>}
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1 font-bold" htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              {...register("email", { required: true })}
-              className="w-full border p-2 rounded focus:ring-emerald-500"
-            />
-            {errors.email && <span className="text-red-500">Email inválido</span>}
-          </div>
-          <button type="submit" className="bg-emerald-500 text-white py-2 px-4 rounded hover:bg-emerald-600 transition-colors">
-            Actualizar Perfil
-          </button>
-          {message && <p className="mt-2 text-center">{message}</p>}
-        </form>
-      </main>
-      {/* Footer eliminado */}
-    </PrivateRoute>
+
+      <PrivateRoute>
+        <main className="min-h-screen bg-gray-900 text-white">
+          {isLoading ? (
+            <Loader />
+          ) : isError ? (
+            <p className="text-center text-red-500 mt-10">Error al cargar el perfil.</p>
+          ) : (
+            <div className="max-w-lg mx-auto p-6 glass rounded-lg shadow-lg mt-10">
+              <h1 className="text-2xl font-bold text-center mb-6">Mi Perfil</h1>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div>
+                  <label className="block mb-1 font-semibold">Nombre</label>
+                  <input
+                    type="text"
+                    {...register("nombre", { required: "El nombre es obligatorio" })}
+                    className="w-full p-2 border rounded text-black"
+                  />
+                  {errors.nombre?.message && (
+                    <p className="text-red-500">{errors.nombre.message as string}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block mb-1 font-semibold">Correo Electrónico</label>
+                  <input
+                    type="email"
+                    {...register("email", { required: "El email es obligatorio" })}
+                    className="w-full p-2 border rounded text-black"
+                  />
+                  {errors.email?.message && (
+                    <p className="text-red-500">{errors.email.message as string}</p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={updateProfileMutation.isLoading}
+                  className="w-full py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600"
+                >
+                  {updateProfileMutation.isLoading ? "Actualizando..." : "Actualizar Perfil"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onDelete}
+                  disabled={deleteProfileMutation.isLoading}
+                  className="w-full py-2 bg-red-500 text-white rounded hover:bg-red-600 mt-4"
+                >
+                  {deleteProfileMutation.isLoading ? "Eliminando cuenta..." : "Eliminar Cuenta"}
+                </button>
+              </form>
+            </div>
+          )}
+        </main>
+      </PrivateRoute>
+    </>
   );
 };
 
