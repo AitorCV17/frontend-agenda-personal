@@ -31,18 +31,24 @@ const EventForm = ({ event }: EventFormProps) => {
 
   const onSubmit = async (data: EventFormInputs) => {
     try {
+      const payload = {
+        ...data,
+        fecha_inicio: new Date(data.fecha_inicio).toISOString(), // 👈 formato ISO completo
+        fecha_fin: new Date(data.fecha_fin).toISOString(),
+      };
+  
       if (event) {
-        await axiosInstance.put(`/events/${event.id}`, data);
-        setMessage("Evento actualizado correctamente.");
+        await axiosInstance.put(`/events/${event.id}`, payload);
       } else {
-        await axiosInstance.post("/events", data);
-        setMessage("Evento creado correctamente.");
+        await axiosInstance.post("/events", payload);
       }
+  
       router.push("/events");
     } catch (error: any) {
       setMessage(error.message || "Error al enviar el formulario");
     }
   };
+  
 
   return (
     <motion.form

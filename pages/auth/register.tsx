@@ -1,11 +1,23 @@
 // pages/auth/register.tsx
 import { NextPage } from "next";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import RegisterForm from "components/forms/RegisterForm";
+import { useAuth } from "hooks/useAuth";
 
 const RegisterPage: NextPage = () => {
+  const { user, isLoading } = useAuth();
   const router = useRouter();
+
+  // Si el usuario ya está autenticado, redirigir al dashboard.
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.push("/dashboard");
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading) return <div>Cargando...</div>;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">

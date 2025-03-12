@@ -1,21 +1,12 @@
-// pages/events/[id].tsx
+// pages/events/new.tsx
+
 import { NextPage } from "next";
-import { useRouter } from "next/router";
 import PrivateRoute from "components/common/PrivateRoute";
 import Header from "components/common/Header";
 import EventForm from "components/forms/EventForm";
-import { useEvents } from "hooks/useEvents";
 import { motion } from "framer-motion";
 
-const EventDetailPage: NextPage = () => {
-  const router = useRouter();
-  const { id } = router.query;
-  const { data: events } = useEvents();
-
-  // Si se pasa un id se busca el evento para editar,
-  // de lo contrario se asume que se va a crear uno nuevo.
-  const event = events?.find((ev: any) => ev.id === id);
-
+const NewEventPage: NextPage = () => {
   return (
     <PrivateRoute>
       <Header />
@@ -26,12 +17,12 @@ const EventDetailPage: NextPage = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
         >
-          {event ? "Editar Evento" : "Crear Evento"}
+          Crear Evento
         </motion.h2>
-        <EventForm event={event} />
+        <EventForm />
       </main>
     </PrivateRoute>
   );
 };
 
-export default EventDetailPage;
+export default NewEventPage;
